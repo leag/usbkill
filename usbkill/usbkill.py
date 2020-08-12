@@ -149,18 +149,25 @@ def kill_computer(settings):
 	elif settings['do_wipe_swap']:
 		os.system(settings['wipe_swap_cmd'])
 	
-	if settings['shut_down']: # (Use argument --no-shut-down to prevent a shutdown.)
-		# Finally poweroff computer immediately
+	# if settings['shut_down']: # (Use argument --no-shut-down to prevent a shutdown.)
+	# 	# Finally poweroff computer immediately
+	# 	if CURRENT_PLATFORM.startswith("DARWIN"):
+	# 		# OS X (Darwin) - Will halt ungracefully, without signaling apps
+	# 		os.system("killall Finder ; killall loginwindow ; halt -q")
+	# 	elif CURRENT_PLATFORM.endswith("BSD"):
+	# 		# BSD-based systems - Will shutdown
+	# 		os.system("shutdown -h now")
+	# 	else:
+	# 		# Linux-based systems - Will shutdown
+	# 		os.system("poweroff -f")
+	if settings['reboot']:
 		if CURRENT_PLATFORM.startswith("DARWIN"):
-			# OS X (Darwin) - Will halt ungracefully, without signaling apps
-			os.system("killall Finder ; killall loginwindow ; halt -q")
+			os.system("shutdown -r now")
 		elif CURRENT_PLATFORM.endswith("BSD"):
-			# BSD-based systems - Will shutdown
-			os.system("shutdown -h now")
+			os.system("shutdown -r now")
 		else:
-			# Linux-based systems - Will shutdown
-			os.system("poweroff -f")
-		
+			os.system("reboot")
+	
 	# Exit the process to prevent executing twice (or more) all commands
 	sys.exit(0)
 
@@ -377,11 +384,17 @@ def startup_checks():
 		args.remove('--cs')
 		copy_settings = True
 		
-	shut_down = True
-	if '--no-shut-down' in args:
-		print("[NOTICE] Ready to execute all the (potentially destructive) commands, but NOT shut down the computer.")
-		args.remove('--no-shut-down')
-		shut_down = False
+	# shut_down = False
+	# if '--no-shut-down' in args:
+	# 	print("[NOTICE] Ready to execute all the (potentially destructive) commands, but NOT shut down the computer.")
+	# 	args.remove('--no-shut-down')
+	# 	shut_down = False
+
+	reboot = True
+	if '--no-reboot' in args:
+		print("[NOTICE] Ready to execute all the (potentially destructive) commands, but NOT reboot the computer.")
+		args.remove('--no-reboot')
+		reboot = False	
 	
 	# Check all other args
 	if len(args) > 0:
@@ -411,7 +424,8 @@ def startup_checks():
 		
 	# Load settings
 	settings = load_settings(SETTINGS_FILE)
-	settings['shut_down'] = shut_down
+	#settings['shut_down'] = shut_down
+	settings['reboot'] = reboot
 	
 	# Make sure no spaces a present in paths to be wiped.
 	for name in settings['folders_to_remove'] + settings['files_to_remove']:
