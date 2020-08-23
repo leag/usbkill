@@ -1,0 +1,14 @@
+[Unit]
+Description=usbkill
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/var/log/usbkill
+ExecStart=/usr/bin/python3 /usr/local/bin/usbkill
+
+[Install]
+WantedBy=multi-user.target
